@@ -1,0 +1,9 @@
+{
+  "name": "m-pesa",
+  "version": "0.0.1",
+  "description": "A wrapper around M-PESA API endpoints for easy integration with Node applications",
+  "main": "index.js",
+  "repository": "https://github.com/Pheon-Dev/m-pesa",
+  "author": "Pheon-Dev",
+  "license": "MIT"
+}
