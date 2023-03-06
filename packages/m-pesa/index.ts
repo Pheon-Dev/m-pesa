@@ -2,14 +2,98 @@
 import { dateTime } from "./utils/date";
 import { routes } from "./utils/routes";
 import axios from "axios";
-import { C2BQueryRequestBody, C2BRegistrationRequestBody, C2BSimulationRequestBody, ConsumerCredentials, LipaNaMpesaRequestBody } from "./interfaces";
+import {
+  C2BQueryRequestBody,
+  C2BRegistrationRequestBody,
+  C2BSimulationRequestBody,
+  ConsumerCredentials,
+  LipaNaMpesaRequestBody
+} from "./interfaces";
 
+// const routes = {
+//   production: 'https://api.safaricom.co.ke',
+//   sandbox: 'https://sandbox.safaricom.co.ke',
+//   oauth: '/oauth/v1/generate?grant_type=client_credentials',
+//   b2c: '/mpesa/b2c/v1/paymentrequest',
+//   b2b: '/mpesa/b2b/v1/paymentrequest',
+//   c2bregister: '/mpesa/c2b/v1/registerurl',
+//   c2bsimulate: '/mpesa/c2b/v1/simulate',
+//   accountbalance: '/mpesa/accountbalance/v1/query',
+//   transactionstatus: '/mpesa/transactionstatus/v1/query',
+//   reversal: '/mpesa/reversal/v1/request',
+//   stkpush: '/mpesa/stkpush/v1/processrequest',
+//   stkquery: '/mpesa/stkpushquery/v1/query',
+// };
 
-export const GetToken = async (cred: ConsumerCredentials) => {
-  const tokenUrl = routes.production + routes.oauth;
+function doubleDigits(number: number) {
+  if (number.toString().length <= 1) return "0" + number;
+  return number;
+}
+
+function dateDigits(date?: string, separator?: string) {
+  let customDate = !date || date === "now" ? new Date() : new Date(date);
+
+  const sep = separator ? separator : "";
+  const timeSep = separator ? ":" : "";
+
+  const YYYY = customDate.getFullYear();
+  const MM = doubleDigits(customDate.getMonth() + 1);
+  const DD = doubleDigits(customDate.getDate());
+  const HH = doubleDigits(customDate.getHours());
+  const mm = doubleDigits(customDate.getMinutes());
+  const ss = doubleDigits(customDate.getSeconds());
+
+  const newDate = YYYY + sep + MM + sep + DD;
+  const time = HH + timeSep + mm + timeSep + ss;
+
+  return newDate + " " + time;
+}
+
+function date(when?: string, separator?: string) {
+  const customDate = !when || when === "now" ? new Date() : new Date(when);
+
+  const sep = separator ? separator : "";
+
+  const YYYY = customDate.getFullYear();
+  const MM = doubleDigits(customDate.getMonth() + 1);
+  const DD = doubleDigits(customDate.getDate());
+
+  const newDate = YYYY + sep + MM + sep + DD;
+
+  return newDate;
+}
+
+function time(when?: string, separator?: string) {
+  let customDate = !when || when === "now" ? new Date() : new Date(when);
+
+  const sep = separator ? ":" : "";
+
+  const HH = doubleDigits(customDate.getHours());
+  const mm = doubleDigits(customDate.getMinutes());
+  const ss = doubleDigits(customDate.getSeconds());
+
+  const time = HH + sep + mm + sep + ss;
+
+  return time;
+}
+
+// function dateTime(when?: string, separator?: string) {
+//   const sep = separator ? ":" : "";
+//   return date(when, separator) + sep + time(when, separator);
+// }
+
+export const GetToken = async ({ consumerKey, consumerSecret, environment }: ConsumerCredentials) => {
+
+  let tokenUrl = "";
+  if (environment === "development" || environment === "sandbox") {
+    tokenUrl = routes.sandbox + routes.oauth;
+  }
+  if (environment === "production") {
+    tokenUrl = routes.production + routes.oauth;
+  }
 
   const url = tokenUrl;
-  const auth = Buffer.from(`${cred.consumerKey}:${cred.consumerSecret}`).toString(
+  const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString(
     "base64"
   );
 
@@ -20,16 +104,16 @@ export const GetToken = async (cred: ConsumerCredentials) => {
   return res.data.access_token;
 }
 
-export const C2BRegistration = async (cred: ConsumerCredentials, req: C2BRegistrationRequestBody) => {
+export const C2BRegistration = async ({ consumerKey, consumerSecret, environment }: ConsumerCredentials, { shortCode, confirmationURL, validationURL, responseType }: C2BRegistrationRequestBody) => {
   try {
-    const token = await GetToken(cred);
+    const token = await GetToken({ consumerSecret, consumerKey, environment });
     const url = routes.production + routes.c2bregister;
 
     const data = {
-      ShortCode: Number(req.ShortCode),
-      ConfirmationURL: `${req.ConfirmationURL}`,
-      ValidationURL: `${req.ValidationURL}`,
-      ResponseType: `${req.ResponseType}`,
+      ShortCode: Number(shortCode),
+      ConfirmationURL: `${confirmationURL}`,
+      ValidationURL: `${validationURL}`,
+      ResponseType: `${responseType}`,
     };
 
     const headers = {
@@ -53,17 +137,17 @@ export const C2BRegistration = async (cred: ConsumerCredentials, req: C2BRegistr
   }
 }
 
-export const C2BSimulation = async (cred: ConsumerCredentials, req: C2BSimulationRequestBody) => {
+export const C2BSimulation = async ({ consumerSecret, consumerKey, environment }: ConsumerCredentials, { shortCode, amount, msisdn, commandID, billRefNumber }: C2BSimulationRequestBody) => {
   try {
-    const token = await GetToken(cred);
+    const token = await GetToken({ consumerKey, consumerSecret, environment });
     const url = routes.production + routes.c2bsimulate;
 
     const data = {
-      ShortCode: req.ShortCode,
-      Amount: req.Amount,
-      Msisdn: req.Msisdn,
-      CommandID: req.CommandID,
-      BillRefNumber: `${req.BillRefNumber}`,
+      ShortCode: shortCode,
+      Amount: amount,
+      Msisdn: msisdn,
+      CommandID: commandID,
+      BillRefNumber: `${billRefNumber}`,
     };
 
     const headers = {
@@ -78,8 +162,8 @@ export const C2BSimulation = async (cred: ConsumerCredentials, req: C2BSimulatio
       data,
     });
 
-    return response
-    // return response.data
+    // return response
+    return response.data
     // res.status(200).json(response.data);
   } catch (error) {
 
@@ -88,26 +172,26 @@ export const C2BSimulation = async (cred: ConsumerCredentials, req: C2BSimulatio
 
 }
 
-export const LipaNaMpesa = async (cred: ConsumerCredentials, req: LipaNaMpesaRequestBody) => {
+export const LipaNaMpesa = async ({ consumerSecret, consumerKey, passKey, environment }: ConsumerCredentials, { businessShortCode, transactionType, amount, phoneNumber, callBackURL, transactionDesc, accountReference }: LipaNaMpesaRequestBody) => {
   try {
     const time_stamp = dateTime();
-    const token = await GetToken(cred);
+    const token = await GetToken({ consumerSecret, consumerKey, environment });
     const url = routes.production + routes.stkpush;
 
     const data = {
-      BusinessShortCode: req.BusinessShortCode,
+      BusinessShortCode: businessShortCode,
       Password: Buffer.from(
-        `${req.BusinessShortCode}${cred.passKey}${time_stamp}`
+        `${businessShortCode}${passKey}${time_stamp}`
       ).toString("base64"),
       Timestamp: time_stamp,
-      TransactionType: req.TransactionType,
-      Amount: req.Amount,
-      PartyA: req.PhoneNumber,
-      PartyB: req.BusinessShortCode,
-      PhoneNumber: req.PhoneNumber,
-      CallBackURL: req.CallBackURL,
-      AccountReference: req.CallBackURL,
-      TransactionDesc: "Payment of loan services",
+      TransactionType: transactionType,
+      Amount: amount,
+      PartyA: phoneNumber,
+      PartyB: businessShortCode,
+      PhoneNumber: phoneNumber,
+      CallBackURL: callBackURL,
+      AccountReference: accountReference,
+      TransactionDesc: transactionDesc,
     };
 
     const headers = {
@@ -132,20 +216,20 @@ export const LipaNaMpesa = async (cred: ConsumerCredentials, req: LipaNaMpesaReq
   }
 }
 
-export const C2BQuery = async (cred: ConsumerCredentials, req: C2BQueryRequestBody) => {
+export const C2BQuery = async ({ consumerSecret, consumerKey, passKey, environment }: ConsumerCredentials, { businessShortCode, checkoutRequestID }: C2BQueryRequestBody) => {
 
   try {
-    const token = await GetToken(cred);
+    const token = await GetToken({ consumerSecret, consumerKey, environment });
     const url = routes.production + routes.stkquery;
     const time_stamp = dateTime();
 
     const data = {
-      BusinessShortCode: Number(req.BusinessShortCode),
+      BusinessShortCode: Number(businessShortCode),
       Password: Buffer.from(
-        `${req.BusinessShortCode}${cred.passKey}${time_stamp}`
+        `${businessShortCode}${passKey}${time_stamp}`
       ).toString("base64"),
       Timestamp: time_stamp,
-      CheckoutRequestID: req.CheckoutRequestID,
+      CheckoutRequestID: checkoutRequestID,
     };
 
     const headers = {

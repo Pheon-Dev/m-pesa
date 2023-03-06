@@ -2,40 +2,39 @@
 export interface ConsumerCredentials {
   consumerSecret: string;
   consumerKey: string;
-  passKey: string;
+  environment: "development" | "production" | "sandbox";
+  passKey?: string;
 }
 
 export interface C2BRegistrationRequestBody {
-  ShortCode: string;
-  ConfirmationURL: string;
-  ValidationURL: string;
-  ResponseType: string,
+  shortCode: string;
+  confirmationURL: string;
+  validationURL: string;
+  responseType: string,
 }
 
 export interface C2BSimulationRequestBody {
-  ShortCode: string,
-  Amount: string,
-  Msisdn: string,
-  CommandID: string,
-  BillRefNumber: string,
-  TransactionType: string,
+  shortCode: string,
+  amount: string,
+  msisdn: string,
+  commandID: string,
+  billRefNumber: string,
 }
 
 export interface LipaNaMpesaRequestBody {
-  BusinessShortCode: string,
-  Timestamp: string,
-  TransactionType: string,
-  Amount: string,
-  PartyA: string,
-  PartyB: string,
-  PhoneNumber: string,
-  CallBackURL: string,
-  AccountReference: string,
-  TransactionDesc: string,
+  businessShortCode: string,
+  timestamp: string,
+  transactionType: string,
+  amount: string,
+  partyA: string,
+  partyB: string,
+  phoneNumber: string,
+  callBackURL: string,
+  accountReference: string,
+  transactionDesc: string,
 }
 
 export interface C2BQueryRequestBody {
-  BusinessShortCode: string,
-  Timestamp: string,
-  CheckoutRequestID: string,
+  businessShortCode: string,
+  checkoutRequestID: string,
 }
