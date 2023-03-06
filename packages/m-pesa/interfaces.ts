@@ -2,13 +2,14 @@
 export interface ConsumerCredentials {
   consumerSecret: string;
   consumerKey: string;
+  passKey: string;
 }
 
 export interface C2BRegistrationRequestBody {
   ShortCode: string;
   ConfirmationURL: string;
   ValidationURL: string;
-  ResponseType: "Completed",
+  ResponseType: string,
 }
 
 export interface C2BSimulationRequestBody {
@@ -17,5 +18,18 @@ export interface C2BSimulationRequestBody {
   Msisdn: string,
   CommandID: string,
   BillRefNumber: string,
-  TransactionType: "CustomerPayBillOnline",
+  TransactionType: string,
+}
+
+export interface LipaNaMpesaRequestBody {
+  BusinessShortCode: string,
+  Timestamp: string,
+  TransactionType: string,
+  Amount: string,
+  PartyA: string,
+  PartyB: string,
+  PhoneNumber: string,
+  CallBackURL: string,
+  AccountReference: string,
+  TransactionDesc: string,
 }
