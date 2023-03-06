@@ -1,9 +1,44 @@
 {
-  "name": "m-pesa",
-  "version": "0.0.1",
+  "name": "@pheon/m-pesa",
+  "version": "0.0.11",
+  "keywords": [
+    "m-pesa",
+    "M-PESA",
+    "API",
+    "M-PESA API",
+    "m-pesa api"
+  ],
+  "bugs": "https://github.com/Pheon-Dev/m-pesa/issues",
+  "homepage": "https://github.com/Pheon-Dev/m-pesa",
   "description": "A wrapper around M-PESA API endpoints for easy integration with Node applications",
-  "main": "index.js",
-  "repository": "https://github.com/Pheon-Dev/m-pesa",
+  "main": "./index.ts",
+  "private": false,
+  "files": [
+    "index.ts",
+    "lib/*.ts"
+  ],
+  "scripts": {
+    "lint": "TIMING=1 eslint \"**/*.ts*\""
+  },
+  "repository": {
+    "url": "https://github.com/Pheon-Dev/m-pesa/tree/main/packages/m-pesa",
+    "type": "git"
+  },
   "author": "Pheon-Dev",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@trpc/client": "^10.14.0",
+    "@trpc/next": "^10.14.0",
+    "@trpc/react-query": "^10.14.0",
+    "@trpc/server": "^10.14.0"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "*",
+    "react": "^18.2.0",
+    "tsconfig": "*",
+    "typescript": "^4.5.2"
+  }
 }
