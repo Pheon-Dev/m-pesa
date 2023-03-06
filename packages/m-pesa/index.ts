@@ -2,7 +2,7 @@
 import { dateTime } from "./utils/date";
 import { routes } from "./utils/routes";
 import axios from "axios";
-import { C2BRegistrationRequestBody, C2BSimulationRequestBody, ConsumerCredentials, LipaNaMpesaRequestBody } from "./interfaces";
+import { C2BQueryRequestBody, C2BRegistrationRequestBody, C2BSimulationRequestBody, ConsumerCredentials, LipaNaMpesaRequestBody } from "./interfaces";
 
 
 export const GetToken = async (cred: ConsumerCredentials) => {
@@ -132,39 +132,40 @@ export const LipaNaMpesa = async (cred: ConsumerCredentials, req: LipaNaMpesaReq
   }
 }
 
-  // async function c2bQry() {
-  //   try {
-  //     const token = await getToken();
-  //     const url = routes.production + routes.stkquery;
-  //
-  //     const data = {
-  //       BusinessShortCode: Number(BUSINESS_SHORT_CODE),
-  //       Password: Buffer.from(
-  //         `${BUSINESS_SHORT_CODE}${PASS_KEY}${TIMESTAMP}`
-  //       ).toString("base64"),
-  //       Timestamp: TIMESTAMP,
-  //       CheckoutRequestID: "ws_CO_22072022083144984768858280",
-  //     };
-  //
-  //     const headers = {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${token}`,
-  //     };
-  //
-  //     const response = await axios.request({
-  //       method: "POST",
-  //       url,
-  //       headers,
-  //       data,
-  //     });
-  //
-  //     res.status(200).json(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //
-  //     res.status(500).json({ message: "Something went wrong", error });
-  //   }
-  // }
+export const C2BQuery = async (cred: ConsumerCredentials, req: C2BQueryRequestBody) => {
+
+  try {
+    const token = await GetToken(cred);
+    const url = routes.production + routes.stkquery;
+    const time_stamp = dateTime();
+
+    const data = {
+      BusinessShortCode: Number(req.BusinessShortCode),
+      Password: Buffer.from(
+        `${req.BusinessShortCode}${cred.passKey}${time_stamp}`
+      ).toString("base64"),
+      Timestamp: time_stamp,
+      CheckoutRequestID: req.CheckoutRequestID,
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await axios.request({
+      method: "POST",
+      url,
+      headers,
+      data,
+    });
+
+    return response
+  } catch (error) {
+    console.log({ message: "Something went wrong", error });
+  }
+}
+
 
   // async function logs() {
   //   try {

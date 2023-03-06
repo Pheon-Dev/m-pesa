@@ -33,3 +33,9 @@ export interface LipaNaMpesaRequestBody {
   AccountReference: string,
   TransactionDesc: string,
 }
+
+export interface C2BQueryRequestBody {
+  BusinessShortCode: string,
+  Timestamp: string,
+  CheckoutRequestID: string,
+}
